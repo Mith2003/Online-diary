@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Diary</title>
+    <link rel="stylesheet" href="style.css"> 
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color:#161D6F;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #E2E6E8;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+input[type="text"], textarea {
+    width: calc(100% - 20px);
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    padding: 12px 24px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#entryList {
+    list-style-type: none;
+    padding: 0;
+}
+
+.entryItem {
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.deleteButton {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.deleteButton:hover {
+    background-color: #c82333;
+}
+
+.viewButton {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.viewButton:hover {
+    background-color: #0056b3;
+}
+/* Add new styles for button alignment */
+.buttonContainer {
+    display: flex;
+    align-items: center;
+}
+
+.deleteButton, .viewButton {
+    margin-left: 10px;
+}
+
+.left-image, .right-image {
+    position: fixed;
+    top: 0;
+    width: 20px;
+    height: 10px;
+    background-image: url('left-image.png'); /* Replace 'left-image.png' with your image file */
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.right-image {
+    right: 0;
+    background-image: url('right-image.png'); /* Replace 'right-image.png' with your image file */
+    animation: slideRight 10s linear infinite;
+}
+
+@keyframes slideLeft {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-200px); }
+}
+
+@keyframes slideRight {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(200px); }
+}
+
+</style>
+<script>
+let entries = [];
+
+window.onload = function() {
+    const storedEntries = localStorage.getItem('diaryEntries');
+    if (storedEntries) {
+        entries = JSON.parse(storedEntries);
+        displayEntries();
+    }
+};
+
+function addEntry() {
+    const entryTitle = document.getElementById('entryTitle').value;
+    const entryContent = document.getElementById('entryContent').value;
+
+    if (entryTitle === '' || entryContent === '') {
+        alert('Please fill in both title and content fields.');
+        return;
+    }
+
+    const newEntry = { title: entryTitle, content: entryContent };
+    entries.push(newEntry);
+    localStorage.setItem('diaryEntries', JSON.stringify(entries));
+    displayEntries();
+    clearInputFields();
+}
+
+function displayEntries() {
+    const entryList = document.getElementById('entryList');
+    entryList.innerHTML = '';
+
+    entries.forEach((entry, index) => {
+        const listItem = document.createElement('li');
+        listItem.className = 'entryItem';
+        listItem.innerHTML = `
+            <div class="entryHeader">
+                <h3>${entry.title}</h3>
+                <div class="buttonContainer">
+                    <button class="deleteButton" onclick="deleteEntry(${index})">Delete</button>
+                    <button class="viewButton" onclick="viewEntry(${index})">View</button>
+                </div>
+            </div>
+        `;
+        entryList.appendChild(listItem);
+    });
+}
+
+
+function viewEntry(index) {
+    const entry = entries[index];
+    const viewWindow = window.open('', '_blank');
+    viewWindow.document.write(`
+        <html>
+            <head>
+                <title>${entry.title}</title>
+                <link rel="stylesheet" type="text/css" href="style.css">
+            </head>
+            <body>
+                <div class="container">
+                    <h1>${entry.title}</h1>
+                    <div>${entry.content}</div>
+                </div>
+            </body>
+        </html>
+    `);
+    viewWindow.document.close();
+}
+
+function deleteEntry(index) {
+    const confirmed = confirm("Are you sure you want to delete this entry?");
+    if (confirmed) {
+        entries.splice(index, 1);
+        localStorage.setItem('diaryEntries', JSON.stringify(entries));
+        displayEntries();
+    }
+}
+
+function clearInputFields() {
+    document.getElementById('entryTitle').value = '';
+    document.getElementById('entryContent').value = '';
+}
+
+</script>
+</head>
+<body>
+    <div class="container">
+        <div class="left-image">
+<img src=>
+</div>
+        <div class="right-image"></div>
+        <h1>Online Diary</h1>
+        <div id="entryForm">
+            <input type="text" id="entryTitle" placeholder="Enter title">
+            <textarea id="entryContent" placeholder="Enter content"></textarea>
+            <button onclick="addEntry()">Add Entry</button>
+        </div>
+        <div id="entries">
+            <h2>Entries</h2>
+            <ul id="entryList"></ul>
+        </div>
+    </div>
+</body>
+</html>
